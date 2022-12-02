@@ -1,1 +1,3 @@
-!dataset/DR_grading
+/dataset/DR_grading/test/
+/dataset/DR_grading/train/
+/dataset/DR_grading/valid/

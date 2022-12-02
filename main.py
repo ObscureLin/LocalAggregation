@@ -7,23 +7,24 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 if __name__ == "__main__":
     # initialize device
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    print("[INFO]The device used by torch is {}.".format(device))
+    print("[INFO] The device used by torch is {}.".format(device))
 
     # initialize VGG16 model
     model = VGGnet(in_channels=3, num_classes=6).to(device)
 
     # initialize train valid test dataset
+    batch_size = 32  # we recommend use 32
     train_dataset = DDRDataset("./dataset/DR_grading", dataset_type="train")
-    train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-    print("[INFO]The length of the train data is {}.".format(train_dataset.__len__()))
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    print("[INFO] The length of the train data is {}.".format(train_dataset.__len__()))
 
     valid_dataset = DDRDataset("./dataset/DR_grading", dataset_type="valid")
-    valid_dataloader = DataLoader(valid_dataset, batch_size=32, shuffle=True)
-    print("[INFO]The length of the valid data is {}.".format(valid_dataset.__len__()))
+    valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=True)
+    print("[INFO] The length of the valid data is {}.".format(valid_dataset.__len__()))
 
     test_dataset = DDRDataset("./dataset/DR_grading", dataset_type="test")
-    test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=True)
-    print("[INFO]The length of the test  data is {}.".format(test_dataset.__len__()))
+    test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+    print("[INFO] The length of the test  data is {}.".format(test_dataset.__len__()))
 
     # print(model)
     # x = torch.randn(1, 3, 224, 224).to(device)
@@ -33,9 +34,9 @@ if __name__ == "__main__":
     # model.train()
     # model.eval()
 
-    print("[INFO]The detail of the model :")
+    print("[INFO] The detail of the model :")
     summary(model, (3, 224, 224))
-    print("[INFO]The detail of the model is shown above.")
+    print("[INFO] The detail of the model is shown above.")
 
     # prepare hyper parameters
     criterion = nn.CrossEntropyLoss()
@@ -55,8 +56,9 @@ if __name__ == "__main__":
             loss.backward()
             optimizer.step()
             train_loss += loss.item()
+            print("[INFO] Train_Batch {} :The train_loss is : {}.".format(batch_idx, loss.item()))
 
-        # val
+        # validation
         model.eval()
         correct = 0
         total = 0
@@ -71,9 +73,9 @@ if __name__ == "__main__":
         val_acc_list.append(acc_val)
 
         # save model
-        torch.save(model.state_dict(), "./outputs/last.pt")
+        torch.save(model.state_dict(), "./outputs/last_model.pt")
         if acc_val == max(val_acc_list):
-            torch.save(model.state_dict(), "./outputs/best.pt")
-            print("[INFO]Save epoch {} model".format(epoch))
+            torch.save(model.state_dict(), "./outputs/best_model.pt")
+            print("[INFO] Save epoch {} model".format(epoch))
 
-        print("[INFO]Epoch = {},  loss = {},  acc_val = {}".format(epoch, train_loss, acc_val))
+        print("[INFO] Epoch = {},  total_loss = {},  acc_val = {}".format(epoch, train_loss, acc_val))

@@ -1,0 +1,10 @@
+"C:\Program Files\python\python.exe" D:\Project_Development\SwarmLearning\Lin\LocalAggregation\demo\dataset_statistics.py
+[INFO] The length of the train data is 6835.
+[INFO] The length of the valid data is 2733.
+[INFO] The length of the test  data is 4105.
+[INFO] The train data set has class 0 : 3133 class 1 : 315 class 2 : 2238 class 3 : 118 class 4 : 456 class 5 : 575 total : 6835
+[INFO] The valid data set has class 0 : 1253 class 1 : 126 class 2 : 895 class 3 : 47 class 4 : 182 class 5 : 230 total : 2733
+[INFO] The test data set has class 0 : 1880 class 1 : 189 class 2 : 1344 class 3 : 71 class 4 : 275 class 5 : 346 total : 4105
+------------------------------
+
+Process finished with exit code 0

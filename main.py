@@ -15,15 +15,15 @@ if __name__ == "__main__":
     # initialize train valid test dataset
     batch_size = 32  # we recommend use 32
     train_dataset = DDRDataset("./dataset/DR_grading", dataset_type="train")
-    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
     print("[INFO] The length of the train data is {}.".format(train_dataset.__len__()))
 
     valid_dataset = DDRDataset("./dataset/DR_grading", dataset_type="valid")
-    valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=True)
+    valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
     print("[INFO] The length of the valid data is {}.".format(valid_dataset.__len__()))
 
     test_dataset = DDRDataset("./dataset/DR_grading", dataset_type="test")
-    test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+    test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
     print("[INFO] The length of the test  data is {}.".format(test_dataset.__len__()))
 
     # print(model)
@@ -40,9 +40,11 @@ if __name__ == "__main__":
 
     # prepare hyper parameters
     criterion = nn.CrossEntropyLoss()
-    learning_rate = 1e-4
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-
+    learning_rate = 1e-3
+    # optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4)
+    train_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.1)
+    warm_up_training_phase = 2
     # train
     val_acc_list = []
     for epoch in range(300):
@@ -77,5 +79,9 @@ if __name__ == "__main__":
         if acc_val == max(val_acc_list):
             torch.save(model.state_dict(), "./outputs/best_model.pt")
             print("[INFO] Save epoch {} model".format(epoch))
+
+        # update the learning rate
+        if epoch > warm_up_training_phase:
+            train_scheduler.step(epoch=epoch)
 
         print("[INFO] Epoch = {},  total_loss = {},  acc_val = {}".format(epoch, train_loss, acc_val))

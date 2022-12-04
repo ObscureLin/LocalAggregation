@@ -4,6 +4,7 @@ from PIL import Image
 from torchvision import transforms as T
 
 
+# we randomly selected half of the original images as a training set, 2/10 as a validation set, and 3/10 as a testing set.
 def read_txt(path):
     # 读取txt文件，将图像路径和标签写入到列表中并返回
     ims, labels = [], []

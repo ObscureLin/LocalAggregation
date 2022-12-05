@@ -3,6 +3,30 @@ import os
 from PIL import Image
 from torchvision import transforms as T
 
+MEAN = (0, 0, 0)
+STD = (1, 1, 1)
+
+transform_train = T.Compose([
+    T.Resize([512, 512]),
+    T.RandomCrop(448, padding=4),
+    T.RandomHorizontalFlip(),
+    T.RandomVerticalFlip(),
+    T.RandomRotation(15),
+    T.ToTensor(),
+    T.Normalize(MEAN, STD)])
+
+transform_valid = T.Compose([
+    T.Resize([224, 224]),
+    T.ToTensor(),
+    T.Normalize(MEAN, STD)
+])
+
+transform_test = T.Compose([
+    T.Resize([512, 512]),
+    T.ToTensor(),
+    T.Normalize(MEAN, STD)
+])
+
 
 # we randomly selected half of the original images as a training set, 2/10 as a validation set, and 3/10 as a testing set.
 def read_txt(path):

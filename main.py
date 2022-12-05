@@ -1,6 +1,7 @@
 from models.vgg import *
 from torchsummary import summary
 from utils.data_loader import *
+import torchvision.models as models
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
@@ -10,19 +11,33 @@ if __name__ == "__main__":
     print("[INFO] The device used by torch is {}.".format(device))
 
     # initialize VGG16 model
-    model = VGGnet(in_channels=3, num_classes=6).to(device)
+    # model = VGGmodel(in_channels=3, num_classes=6).to(device)
+    # use the builded-in prettrained vgg16 model and only train it's customized classifier module
 
+    model = models.vgg16(pretrained=True)
+    for parma in model.parameters():
+        parma.requires_grad = False
+
+    model.classifier = nn.Sequential(nn.Linear(25088, 4096),
+                                     nn.ReLU(inplace=True),
+                                     nn.Dropout(),
+                                     nn.Linear(4096, 4096),
+                                     nn.ReLU(inplace=True),
+                                     nn.Dropout(),
+                                     nn.Linear(4096, 6)
+                                     )
+    model = model.to(device)
     # initialize train valid test dataset
-    batch_size = 32  # we recommend use 32
-    train_dataset = DDRDataset("./dataset/DR_grading", dataset_type="train")
+    batch_size = 4  # we recommend use 32
+    train_dataset = DDRDataset("./dataset/DR_grading", dataset_type="train", transforms=transform_train)
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
     print("[INFO] The length of the train data is {}.".format(train_dataset.__len__()))
 
-    valid_dataset = DDRDataset("./dataset/DR_grading", dataset_type="valid")
+    valid_dataset = DDRDataset("./dataset/DR_grading", dataset_type="valid", transforms=transform_valid)
     valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
     print("[INFO] The length of the valid data is {}.".format(valid_dataset.__len__()))
 
-    test_dataset = DDRDataset("./dataset/DR_grading", dataset_type="test")
+    test_dataset = DDRDataset("./dataset/DR_grading", dataset_type="test", transforms=transform_test)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
     print("[INFO] The length of the test  data is {}.".format(test_dataset.__len__()))
 
@@ -35,7 +50,8 @@ if __name__ == "__main__":
     # model.eval()
 
     print("[INFO] The detail of the model :")
-    summary(model, (3, 224, 224))
+    # summary(model, (3, 224, 224))
+    print(model)
     print("[INFO] The detail of the model is shown above.")
 
     # prepare hyper parameters

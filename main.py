@@ -27,8 +27,9 @@ if __name__ == "__main__":
                                      nn.Linear(4096, 6)
                                      )
     model = model.to(device)
+    
     # initialize train valid test dataset
-    batch_size = 4  # we recommend use 32
+    batch_size = 32  # we recommend use 32
     train_dataset = DDRDataset("./dataset/DR_grading", dataset_type="train", transforms=transform_train)
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
     print("[INFO] The length of the train data is {}.".format(train_dataset.__len__()))

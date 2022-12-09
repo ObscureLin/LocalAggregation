@@ -8,7 +8,7 @@ STD = (1, 1, 1)
 
 transform_train = T.Compose([
     T.Resize([512, 512]),
-    T.RandomCrop(448, padding=4),
+    T.RandomCrop(224, padding=4),  # 学姐使用的 448 vgg16 默认224
     T.RandomHorizontalFlip(),
     T.RandomVerticalFlip(),
     T.RandomRotation(15),
@@ -22,7 +22,7 @@ transform_valid = T.Compose([
 ])
 
 transform_test = T.Compose([
-    T.Resize([512, 512]),
+    T.Resize([224, 224]),
     T.ToTensor(),
     T.Normalize(MEAN, STD)
 ])

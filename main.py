@@ -1,7 +1,7 @@
 from models.vgg import *
-from torchsummary import summary
 from utils.data_loader import *
 import torchvision.models as models
+from torchsummary import summary
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
@@ -10,36 +10,36 @@ if __name__ == "__main__":
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print("[INFO] The device used by torch is {}.".format(device))
 
-    # initialize VGG16 model
-    # model = VGGmodel(in_channels=3, num_classes=6).to(device)
+    # initialize VGG16 model DDR总共6个类别 Ungradable label = 5
+    model = VGGnet(in_channels=3, num_classes=6).to(device)
+
     # use the builded-in prettrained vgg16 model and only train it's customized classifier module
+    # model = models.vgg16(pretrained=True)
+    # for parma in model.parameters():
+    #   parma.requires_grad = False
+    # 请注意: pytorch 1.x ->25088 pytorch 0.x 少了一层池化
+    # model.classifier = nn.Sequential(nn.Linear(25088, 4096),
+    #                                nn.ReLU(inplace=True),
+    #                                nn.Dropout(),
+    #                                nn.Linear(4096, 4096),
+    #                                nn.ReLU(inplace=True),
+    #                                nn.Dropout(),
+    #                                nn.Linear(4096, 5)
+    #                                )
+    # model = model.to(device)
 
-    model = models.vgg16(pretrained=True)
-    for parma in model.parameters():
-        parma.requires_grad = False
-
-    model.classifier = nn.Sequential(nn.Linear(25088, 4096),
-                                     nn.ReLU(inplace=True),
-                                     nn.Dropout(),
-                                     nn.Linear(4096, 4096),
-                                     nn.ReLU(inplace=True),
-                                     nn.Dropout(),
-                                     nn.Linear(4096, 6)
-                                     )
-    model = model.to(device)
-    
-    # initialize train valid test dataset
     batch_size = 32  # we recommend use 32
+    # initialize train valid test dataset
     train_dataset = DDRDataset("./dataset/DR_grading", dataset_type="train", transforms=transform_train)
-    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=12)
     print("[INFO] The length of the train data is {}.".format(train_dataset.__len__()))
 
     valid_dataset = DDRDataset("./dataset/DR_grading", dataset_type="valid", transforms=transform_valid)
-    valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+    valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=True, num_workers=12)
     print("[INFO] The length of the valid data is {}.".format(valid_dataset.__len__()))
 
     test_dataset = DDRDataset("./dataset/DR_grading", dataset_type="test", transforms=transform_test)
-    test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+    test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_workers=12)
     print("[INFO] The length of the test  data is {}.".format(test_dataset.__len__()))
 
     # print(model)
@@ -62,9 +62,10 @@ if __name__ == "__main__":
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4)
     train_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.1)
     warm_up_training_phase = 2
+
     # train
     val_acc_list = []
-    for epoch in range(300):
+    for epoch in range(100):
         model.train()
         train_loss = 0.0
         for batch_idx, (data, target) in enumerate(train_dataloader):

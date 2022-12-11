@@ -40,6 +40,24 @@ def read_txt(path):
     return ims, labels
 
 
+class SubDataset(Dataset):
+    def __init__(self, *, image_list, label_list):
+        super().__init__()
+        self.image_list = image_list
+        self.label_list = label_list
+
+    def __getitem__(self, index):
+        image, label = self.image_list[index], self.label_list[index]
+        image = Image.open(image)
+        if image.mode != "RGB":
+            image = image.convert("RGB")
+        image = transform_train(image)
+        return image, label
+
+    def __len__(self):
+        return len(self.label_list)
+
+
 class DDRDataset(Dataset):
     def __init__(self, dataset_path="../dataset/DR_grading", *, dataset_type="train", transforms=None):
         super().__init__()

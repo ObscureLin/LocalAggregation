@@ -56,7 +56,7 @@ if __name__ == "__main__":
     print("[INFO] The detail of the model is shown above.")
 
     # prepare hyper parameters
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.CrossEntropyLoss().to(device)
     learning_rate = 1e-3
     # optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4)

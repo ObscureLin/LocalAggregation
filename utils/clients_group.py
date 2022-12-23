@@ -80,11 +80,11 @@ class Client(object):
             val_acc_list.append(acc_val)
 
             # save model
-            torch.save(self.model.state_dict,
-                       os.path.join(self.outputs_dir, "client_" + self.client_id, "last_model.pt"))
+            torch.save(self.model.state_dict(),
+                       os.path.join(self.outputs_dir, "client" + str(self.client_id), "_last_model.pt"))
             if acc_val == max(val_acc_list):
-                torch.save(self.model.state_dict,
-                           os.path.join(self.outputs_dir, "client_" + self.client_id, "best_model.pt"))
+                torch.save(self.model.state_dict(),
+                           os.path.join(self.outputs_dir, "client" + str(self.client_id), "_best_model.pt"))
                 self.local_weights = self.model.state_dict()
                 print("[INFO] Client:{} Save epoch {} model".format(self.client_id, epoch))
 
@@ -148,7 +148,10 @@ class ClientsGroup(object):
                 # local_label = np.argmax(local_label, axis=1)
                 sub_data = data_shards1 + data_shards2
                 sub_label = label_shards1 + label_shards2
+                print("===============================")
                 print(sub_label)
+                print(len(sub_label))
+                print("===============================")
                 sub_dataset = SubDataset(image_list=sub_data,
                                          label_list=sub_label)
                 sub_dataloader = DataLoader(sub_dataset, batch_size=32, shuffle=True, num_workers=12)

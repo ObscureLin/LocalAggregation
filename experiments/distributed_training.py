@@ -1,3 +1,6 @@
+import sys
+
+sys.path.append("../")
 from utils.clients_group import *
 from models.vgg import *
 

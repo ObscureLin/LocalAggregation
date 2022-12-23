@@ -1,3 +1,6 @@
+import sys
+
+sys.path.append("../")
 from utils.data_loader import *
 
 if __name__ == "__main__":
